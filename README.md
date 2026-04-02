@@ -14,6 +14,7 @@ A complete marketplace platform connecting street food vendors with vegetable su
 - Browse product catalog from multiple suppliers
 - Create and track orders
 - Manage profile and order history
+- Chat with AI assistant for product recommendations and support
 
 ### For Suppliers
 - Add/update products
