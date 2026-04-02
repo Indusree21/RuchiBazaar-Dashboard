@@ -97,8 +97,3 @@ git push origin main
     ├── signup.html
     └── ...
 ```
-
-## License
-
-MIT
-
