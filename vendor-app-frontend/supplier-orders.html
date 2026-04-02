@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Orders Received - RuchiBazaar</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap');
+
+    body {
+      background: linear-gradient(to bottom right, #f0fdf4, #dcfce7);
+    }
+
+    .highlight-title {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .glass-box {
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 1rem;
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+    }
+
+    .ruchi-logo span {
+      background: linear-gradient(to right, #f97316, #1e40af);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="flex h-screen">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white bg-opacity-80 backdrop-blur-lg shadow-md p-6 flex flex-col space-y-3">
+    <div class="text-2xl ruchi-logo mb-4">🛒 <span>RuchiBazaar</span></div>
+    <nav class="space-y-3 mt-4 flex-grow">
+      <a href="supplier-dashboard.html" class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">🏠 Dashboard</a>
+      <a href="#" id="profileLink" class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">👤 My Profile</a>
+      <a href="#" id="productsLink" class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">📦 My Products</a>
+      <a href="supplier-orders.html" class="block px-4 py-2 rounded bg-green-100 text-gray-800 font-medium">📝 Orders Received</a>
+      <a href="#" class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">⚙️ Settings</a>
+    </nav>
+    <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition mt-auto">
+      Logout
+    </button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <h1 class="text-3xl highlight-title text-gray-800 mb-8">📝 Orders Received</h1>
+
+    <!-- Orders List -->
+    <div id="ordersContainer" class="space-y-4">
+      <!-- Orders will be dynamically loaded here -->
+    </div>
+  </main>
+
+  <!-- Chatbot -->
+  <script src="chatbot.js"></script>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("supplierId");
+      window.location.href = "index.html";
+    }
+
+    async function loadOrders() {
+      const supplierId = localStorage.getItem("supplierId");
+      if (!supplierId) {
+        alert("Please log in");
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/orders/supplier/${supplierId}`);
+        if (!res.ok) throw new Error("Failed to fetch orders");
+        
+        const orders = await res.json();
+        displayOrders(orders);
+      } catch (error) {
+        console.error("Error loading orders:", error);
+        alert("Failed to load orders");
+      }
+    }
+
+    function displayOrders(orders) {
+      const container = document.getElementById("ordersContainer");
+      container.innerHTML = "";
+
+      if (orders.length === 0) {
+        container.innerHTML = `<p class="text-gray-600">No orders received yet.</p>`;
+        return;
+      }
+
+      orders.forEach(order => {
+        const orderCard = document.createElement("div");
+        orderCard.className = "glass-box shadow hover:shadow-lg transition";
+
+        const statusColor = order.status === "delivered" ? "text-green-600" : 
+                           order.status === "cancelled" ? "text-red-600" : "text-yellow-600";
+
+        orderCard.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <h3 class="text-xl font-semibold text-green-700">${order.productName}</h3>
+              <p class="text-gray-600 text-sm">Vendor Phone: ${order.vendorPhone}</p>
+              <p class="text-gray-800 mt-2">Quantity: ${order.quantity} ${order.unit}</p>
+              <p class="text-gray-800">Price per ${order.unit}: ₹${order.pricePerKg}</p>
+              <p class="text-gray-800 font-semibold">Total: ₹${order.totalAmount}</p>
+              <p class="text-gray-600 text-sm mt-2">Order Date: ${new Date(order.orderDate).toLocaleDateString()}</p>
+            </div>
+            <div class="flex flex-col items-end gap-2">
+              <span class="px-3 py-1 rounded-full text-sm font-semibold ${statusColor} bg-opacity-20 ${statusColor.replace('text-', 'bg-')}">
+                ${order.status.toUpperCase()}
+              </span>
+              ${order.status === "pending" ? `
+                <div class="flex gap-2 mt-2">
+                  <button onclick="updateOrderStatus('${order._id}', 'delivered')" class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition">
+                    Mark Delivered
+                  </button>
+                  <button onclick="updateOrderStatus('${order._id}', 'cancelled')" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition">
+                    Cancel
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+
+        container.appendChild(orderCard);
+      });
+    }
+
+    async function updateOrderStatus(orderId, status) {
+      try {
+        const res = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status })
+        });
+
+        if (res.ok) {
+          alert(`✅ Order ${status} successfully!`);
+          loadOrders();
+        } else {
+          alert("Failed to update order status");
+        }
+      } catch (error) {
+        console.error("Error updating order:", error);
+        alert("Failed to update order status");
+      }
+    }
+
+    loadOrders();
+  </script>
+</body>
+</html>

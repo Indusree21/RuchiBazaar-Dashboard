@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Orders - RuchiBazaar</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap');
+
+    body {
+      background: linear-gradient(to bottom right, #f0f4ff, #e8f0fe);
+    }
+
+    .highlight-title {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .glass-box {
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 1rem;
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+    }
+
+    .ruchi-logo span {
+      background: linear-gradient(to right, #f97316, #1e40af);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="flex h-screen">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white bg-opacity-80 backdrop-blur-lg shadow-md p-6 flex flex-col space-y-6">
+    <div class="text-2xl ruchi-logo">🛒 <span>RuchiBazaar</span></div>
+    <nav class="space-y-3 mt-4">
+      <a href="vendor-dashboard.html" class="block px-4 py-2 rounded hover:bg-indigo-100 text-gray-800 font-medium">🏠 Dashboard</a>
+      <a href="vendor-profile.html" class="block px-4 py-2 rounded hover:bg-indigo-100 text-gray-800 font-medium">👤 My Profile</a>
+      <a href="vendor-orders.html" class="block px-4 py-2 rounded bg-indigo-100 text-gray-800 font-medium">📦 My Orders</a>
+      <a href="marketplace.html" class="block px-4 py-2 rounded hover:bg-indigo-100 text-gray-800 font-medium">🛍️ Marketplace</a>
+      <a href="#" class="block px-4 py-2 rounded hover:bg-indigo-100 text-gray-800 font-medium">⚙️ Settings</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl highlight-title text-gray-800">📦 My Orders</h1>
+      <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+        Logout
+      </button>
+    </div>
+
+    <!-- Orders List -->
+    <div id="ordersContainer" class="space-y-4">
+      <!-- Orders will be dynamically loaded here -->
+    </div>
+  </main>
+
+  <!-- Chatbot -->
+  <script src="chatbot.js"></script>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("supplierId");
+      window.location.href = "index.html";
+    }
+
+    async function loadOrders() {
+      const vendorId = localStorage.getItem("supplierId");
+      if (!vendorId) {
+        alert("Please log in");
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/orders/vendor/${vendorId}`);
+        if (!res.ok) throw new Error("Failed to fetch orders");
+        
+        const orders = await res.json();
+        displayOrders(orders);
+      } catch (error) {
+        console.error("Error loading orders:", error);
+        alert("Failed to load orders");
+      }
+    }
+
+    function displayOrders(orders) {
+      const container = document.getElementById("ordersContainer");
+      container.innerHTML = "";
+
+      if (orders.length === 0) {
+        container.innerHTML = `<p class="text-gray-600">No orders yet. Visit the marketplace to place your first order!</p>`;
+        return;
+      }
+
+      orders.forEach(order => {
+        const orderCard = document.createElement("div");
+        orderCard.className = "glass-box shadow hover:shadow-lg transition";
+
+        const supplierName = order.supplierId?.businessName || order.supplierId?.name || "Unknown";
+        const supplierPhone = order.supplierId?.phone || 'N/A';
+        const statusColor = order.status === "delivered" ? "text-green-600" : 
+                           order.status === "cancelled" ? "text-red-600" : "text-yellow-600";
+
+        orderCard.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <h3 class="text-xl font-semibold text-indigo-700">${order.productName}</h3>
+              
+              <!-- Supplier Details Box -->
+              <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <p class="text-sm font-semibold text-blue-800 mb-1">📞 Supplier Contact</p>
+                <p class="text-gray-700 text-sm"><span class="font-medium">Name:</span> ${supplierName}</p>
+                <p class="text-gray-700 text-sm"><span class="font-medium">Phone:</span> ${supplierPhone}</p>
+              </div>
+              
+              <div class="mt-3">
+                <p class="text-gray-800">Quantity: ${order.quantity} ${order.unit}</p>
+                <p class="text-gray-800">Price per ${order.unit}: ₹${order.pricePerKg}</p>
+                <p class="text-gray-800 font-semibold">Total: ₹${order.totalAmount}</p>
+                <p class="text-gray-600 text-sm mt-2">Order Date: ${new Date(order.orderDate).toLocaleDateString()}</p>
+              </div>
+            </div>
+            <div>
+              <span class="px-3 py-1 rounded-full text-sm font-semibold ${statusColor} bg-opacity-20 ${statusColor.replace('text-', 'bg-')}">
+                ${order.status.toUpperCase()}
+              </span>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(orderCard);
+      });
+    }
+
+    loadOrders();
+  </script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Supplier Onboarding - RuchiBazaar</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex items-center justify-center font-sans">
+
+  <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-3xl">
+    <h2 class="text-2xl font-bold text-center text-blue-800 mb-6">Supplier Onboarding</h2>
+
+    <form id="supplierInfoForm" class="space-y-4">
+      <!-- Full Name -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Full Name</label>
+        <input id="name" type="text" required class="w-full border border-gray-300 rounded-lg px-3 py-2">
+      </div>
+
+      <!-- Business Name -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Business Name</label>
+        <input id="businessName" type="text" required class="w-full border border-gray-300 rounded-lg px-3 py-2">
+      </div>
+
+      <!-- Business Type -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Business Type</label>
+        <select id="businessType" required class="w-full border border-gray-300 rounded-lg px-3 py-2">
+          <option value="">-- Select Type --</option>
+          <option value="wholesaler">Wholesaler</option>
+          <option value="manufacturer">Manufacturer</option>
+          <option value="distributor">Distributor</option>
+        </select>
+      </div>
+
+      <!-- Material Category -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Material Category</label>
+        <select id="materialCategory" required class="w-full border border-gray-300 rounded-lg px-3 py-2">
+          <option value="">-- Select Category --</option>
+          <option value="vegetables">Vegetables</option>
+          <option value="fruits">Fruits</option>
+          <option value="spices">Spices</option>
+          <option value="packaging">Packaging</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <!-- Address -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Street</label>
+          <input id="street" type="text" required class="w-full border border-gray-300 rounded-lg px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Village</label>
+          <input id="village" type="text" required class="w-full border border-gray-300 rounded-lg px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">District</label>
+          <input id="district" type="text" required class="w-full border border-gray-300 rounded-lg px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">State</label>
+          <input id="state" type="text" required class="w-full border border-gray-300 rounded-lg px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Pincode</label>
+          <input id="pincode" type="text" pattern="[0-9]{6}" required class="w-full border border-gray-300 rounded-lg px-3 py-2">
+        </div>
+      </div>
+
+      <!-- Years in Business -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Years in Business</label>
+        <select id="experience" required class="w-full border border-gray-300 rounded-lg px-3 py-2">
+          <option value="">-- Select Years --</option>
+          <option value="0-1">0-1 years</option>
+          <option value="1-3">1-3 years</option>
+          <option value="3-5">3-5 years</option>
+          <option value="5+">5+ years</option>
+        </select>
+      </div>
+
+      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+        Complete Onboarding
+      </button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("supplierInfoForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const userStr = localStorage.getItem("user");
+      console.log("User from localStorage:", userStr);
+
+      if (!userStr) {
+        alert("User not found in localStorage. Please sign up again.");
+        window.location.href = "signup.html?role=supplier";
+        return;
+      }
+
+      const user = JSON.parse(userStr);
+      console.log("Parsed user:", user);
+
+      if (!user._id) {
+        alert("User ID missing. Please sign up again.");
+        localStorage.removeItem("user");
+        window.location.href = "signup.html?role=supplier";
+        return;
+      }
+
+      const updatedData = {
+        name: document.getElementById("name").value,
+        businessName: document.getElementById("businessName").value,
+        businessType: document.getElementById("businessType").value,
+        materialCategory: document.getElementById("materialCategory").value,
+        experience: document.getElementById("experience").value,
+        address: {
+          street: document.getElementById("street").value,
+          village: document.getElementById("village").value,
+          district: document.getElementById("district").value,
+          state: document.getElementById("state").value,
+          pincode: document.getElementById("pincode").value,
+        },
+        onboardingCompleted: true
+      };
+
+      try {
+        console.log("Updating supplier profile for ID:", user._id);
+        const res = await fetch(`http://localhost:5000/api/supplier/${user._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedData),
+        });
+
+        const data = await res.json();
+        console.log("Update response:", data);
+
+        if (res.ok) {
+          localStorage.setItem("user", JSON.stringify(data));
+          alert("Onboarding completed successfully!");
+          window.location.href = "login.html";
+        } else {
+          alert(data.message || "Error updating profile");
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        alert("Server error while saving onboarding details");
+      }
+    });
+  </script>
+
+</body>
+</html>

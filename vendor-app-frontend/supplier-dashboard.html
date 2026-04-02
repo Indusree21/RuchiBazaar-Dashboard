@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Supplier Dashboard - RuchiBazaar</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap');
+
+    body {
+      background: linear-gradient(to bottom right, #f0fdf4, #dcfce7);
+    }
+
+    .highlight-title {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .glass-box {
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 1rem;
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+    }
+
+    .ruchi-logo span {
+      background: linear-gradient(to right, #f97316, #1e40af);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+    }
+
+    /* Active sidebar link */
+    .active-sidebar {
+      background-color: #d1fae5; /* green-100 */
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body class="flex h-screen">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white bg-opacity-80 backdrop-blur-lg shadow-md p-6 flex flex-col space-y-3">
+    <div class="text-2xl ruchi-logo mb-4">🛒 <span>RuchiBazaar</span></div>
+    <nav id="sidebarNav" class="space-y-3 mt-4 flex-grow">
+      <a href="#" id="dashboardLink" class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium active-sidebar">🏠 Dashboard</a>
+      <a href="#" id="profileLink" class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">👤 My Profile</a>
+      <a href="#" id="productsLink" class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">📦 My Products</a>
+      <a href="supplier-orders.html" class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">📝 Orders Received</a>
+      <a href="#" class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">⚙️ Settings</a>
+    </nav>
+    <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition mt-auto">
+      Logout
+    </button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <!-- Dashboard Content -->
+    <section id="dashboardSection">
+      <h1 class="text-3xl highlight-title text-gray-800 mb-8">Welcome, Supplier</h1>
+
+      <!-- Summary Section -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="glass-box text-center shadow hover:shadow-lg transition">
+          <h2 class="text-xl text-green-700">Products Listed</h2>
+          <p id="productsListed" class="text-3xl text-gray-800 mt-2">0</p>
+        </div>
+        <div class="glass-box text-center shadow hover:shadow-lg transition">
+          <h2 class="text-xl text-green-700">Orders Received</h2>
+          <p id="ordersReceived" class="text-3xl text-gray-800 mt-2">0</p>
+        </div>
+        <div class="glass-box text-center shadow hover:shadow-lg transition">
+          <h2 class="text-xl text-green-700">Pending Orders</h2>
+          <p id="pendingOrders" class="text-3xl text-gray-800 mt-2">0</p>
+        </div>
+        <div class="glass-box text-center shadow hover:shadow-lg transition">
+          <h2 class="text-xl text-green-700">Total Earnings</h2>
+          <p id="totalEarnings" class="text-2xl text-gray-800 mt-2">₹0</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions Section -->
+      <h2 class="text-2xl highlight-title text-gray-800 mb-4">Quick Actions</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div onclick="window.location.href='add-product.html'" class="glass-box shadow hover:shadow-xl transition cursor-pointer">
+          <h3 class="text-lg text-green-700">➕ Add New Product</h3>
+          <p class="text-sm text-gray-700 mt-1">List new raw materials for vendors to buy.</p>
+        </div>
+        <div onclick="window.location.href='supplier-orders.html'" class="glass-box shadow hover:shadow-xl transition cursor-pointer">
+          <h3 class="text-lg text-green-700">📥 Manage Orders</h3>
+          <p class="text-sm text-gray-700 mt-1">View, accept or reject incoming orders.</p>
+        </div>
+        <div class="glass-box shadow hover:shadow-xl transition cursor-pointer">
+          <h3 class="text-lg text-green-700">📈 Sales Reports</h3>
+          <p class="text-sm text-gray-700 mt-1">Analyze your sales and earnings history.</p>
+        </div>
+      </div>
+    </section>
+    
+<!-- Profile Content -->
+<div id="supplierProfile" class="hidden p-4">
+  <h2 class="text-xl font-bold mb-4">My Profile</h2>
+  <form id="supplierProfileForm" class="space-y-3">
+    <input type="text" id="supplierName" placeholder="Name" class="border p-2 w-full" />
+    <input type="text" id="supplierPhone" placeholder="Phone" class="border p-2 w-full" />
+    <input type="text" id="supplierRole" placeholder="Role" class="border p-2 w-full" disabled />
+
+    <input type="text" id="supplierBusinessName" placeholder="Business Name" class="border p-2 w-full" />
+    <input type="text" id="supplierBusinessType" placeholder="Business Type" class="border p-2 w-full" />
+    <input type="text" id="supplierMaterialCategory" placeholder="Material Category" class="border p-2 w-full" />
+    <input type="text" id="supplierExperience" placeholder="Experience" class="border p-2 w-full" />
+    <input type="text" id="supplierPickupSlot" placeholder="Pickup Slot" class="border p-2 w-full" />
+
+    <input type="text" id="supplierStreet" placeholder="Street" class="border p-2 w-full" />
+    <input type="text" id="supplierVillage" placeholder="Village" class="border p-2 w-full" />
+    <input type="text" id="supplierDistrict" placeholder="District" class="border p-2 w-full" />
+    <input type="text" id="supplierState" placeholder="State" class="border p-2 w-full" />
+    <input type="text" id="supplierPincode" placeholder="Pincode" class="border p-2 w-full" />
+
+    <div class="flex space-x-2">
+  <button type="button" id="editBtn" class="bg-yellow-500 text-white px-4 py-2 rounded">Edit</button>
+  <button type="submit" id="saveBtn" class="bg-blue-500 text-white px-4 py-2 rounded hidden">Save</button>
+</div>
+</form>
+</div>
+
+
+
+    <!-- Products Content -->
+    <section id="productsSection" class="hidden">
+      <h2 class="text-2xl highlight-title text-gray-800 mb-6">My Products</h2>
+      <div id="productsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Products will be dynamically inserted here -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Chatbot -->
+  <script src="chatbot.js"></script>
+
+  <script>
+    // Ensure supplierId exists
+    (function ensureSupplierId() {
+      let supplierId = localStorage.getItem("supplierId");
+
+      if (!supplierId) {
+        const params = new URLSearchParams(window.location.search);
+        const idFromURL = params.get("id");
+        if (idFromURL) {
+          localStorage.setItem("supplierId", idFromURL);
+          supplierId = idFromURL;
+        }
+      }
+
+      if (!supplierId) {
+        alert("Session expired. Please log in again.");
+        window.location.href = "login.html";
+      }
+    })();
+
+    function logout() {
+      localStorage.removeItem("supplierId");
+      window.location.href = "index.html";
+    }
+
+    // Load dashboard summary data
+    async function loadSupplierDashboard() {
+      const supplierId = localStorage.getItem("supplierId");
+      if (!supplierId) return;
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/supplier/dashboard/${supplierId}`);
+
+        const data = await res.json();
+
+        document.getElementById("productsListed").textContent = data.productsListed || 0;
+        document.getElementById("ordersReceived").textContent = data.ordersReceived || 0;
+        document.getElementById("pendingOrders").textContent = data.pendingOrders || 0;
+        document.getElementById("totalEarnings").textContent = `₹${data.totalEarnings || 0}`;
+      } catch (error) {
+        console.error("Error loading supplier dashboard:", error);
+      }
+    }
+
+    // Load products list for supplier
+    async function loadMyProducts() {
+      const supplierId = localStorage.getItem("supplierId");
+      if (!supplierId) {
+        alert("Supplier ID missing. Please log in again.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/products/supplier/${supplierId}`);
+        if (!res.ok) throw new Error("Failed to fetch products");
+        const products = await res.json();
+
+        const container = document.getElementById("productsContainer");
+        container.innerHTML = "";
+
+        if (products.length === 0) {
+          container.innerHTML = `<p class="text-gray-600">No products found.</p>`;
+          return;
+        }
+
+        products.forEach(product => {
+          const productCard = document.createElement("div");
+          productCard.className = "glass-box shadow hover:shadow-lg transition p-4 rounded";
+
+          productCard.innerHTML = `
+            <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-40 object-cover rounded mb-3" />
+            <h3 class="text-lg font-semibold text-green-700">${product.name}</h3>
+            <p class="text-gray-700">${product.category}</p>
+            <p class="text-gray-800 font-semibold">Quantity: ${product.quantity} ${product.quantityType}</p>
+            <p class="text-gray-800 font-semibold">Price: ₹${product.price}</p>
+            <p class="text-gray-600 mt-2">${product.description || ''}</p>
+          `;
+
+          container.appendChild(productCard);
+        });
+
+      } catch (error) {
+        console.error("Error loading products:", error);
+        alert("Failed to load products.");
+      }
+    }
+
+    // Sidebar link handlers for tab toggling
+    const dashboardSection = document.getElementById("dashboardSection");
+    const productsSection = document.getElementById("productsSection");
+
+    const dashboardLink = document.getElementById("dashboardLink");
+    const productsLink = document.getElementById("productsLink");
+    const profileLink = document.getElementById("profileLink");
+
+    function setActiveLink(activeLink) {
+      [dashboardLink, productsLink, profileLink].forEach(link => {
+        link.classList.remove("active-sidebar");
+      });
+      activeLink.classList.add("active-sidebar");
+    }
+
+    dashboardLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      dashboardSection.classList.remove("hidden");
+      productsSection.classList.add("hidden");
+      setActiveLink(dashboardLink);
+    });
+
+    productsLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      dashboardSection.classList.add("hidden");
+      productsSection.classList.remove("hidden");
+      setActiveLink(productsLink);
+      loadMyProducts();
+    });
+
+    const profileSection = document.getElementById("supplierProfile");
+
+// Handle profile sidebar click
+profileLink.addEventListener("click", async (e) => {
+  e.preventDefault();
+  dashboardSection.classList.add("hidden");
+  productsSection.classList.add("hidden");
+  profileSection.classList.remove("hidden");
+  setActiveLink(profileLink);
+
+  // Load supplier details
+  await loadSupplierProfile();
+});
+
+async function loadSupplierProfile() {
+  const supplierId = localStorage.getItem("supplierId");
+  if (!supplierId) return;
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/supplier/${supplierId}`);
+    if (!res.ok) throw new Error("Failed to fetch supplier profile");
+
+    const supplier = await res.json();
+
+    // Fill form fields with safe defaults
+    document.getElementById("supplierName").value = supplier.name ?? "";
+    document.getElementById("supplierPhone").value = supplier.phone ?? "";
+    document.getElementById("supplierRole").value = supplier.role ?? "supplier";
+
+    document.getElementById("supplierBusinessName").value = supplier.businessName ?? "";
+    document.getElementById("supplierBusinessType").value = supplier.businessType ?? "";
+    document.getElementById("supplierMaterialCategory").value = supplier.materialCategory ?? "";
+    document.getElementById("supplierExperience").value = supplier.experience ?? "";
+    document.getElementById("supplierPickupSlot").value = supplier.pickupSlot ?? "";
+
+    document.getElementById("supplierStreet").value = supplier.address?.street ?? "";
+    document.getElementById("supplierVillage").value = supplier.address?.village ?? "";
+    document.getElementById("supplierDistrict").value = supplier.address?.district ?? "";
+    document.getElementById("supplierState").value = supplier.address?.state ?? "";
+    document.getElementById("supplierPincode").value = supplier.address?.pincode ?? "";
+
+  } catch (err) {
+    console.error("Error loading profile:", err);
+    alert("Could not load profile.");
+  }
+}
+
+
+
+// Save profile form
+document.getElementById("supplierProfileForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const supplierId = localStorage.getItem("supplierId");
+  if (!supplierId) return;
+  const updatedData = {
+    name: document.getElementById("supplierName").value,
+    phone: document.getElementById("supplierPhone").value,
+    role: document.getElementById("supplierRole").value,
+    businessName: document.getElementById("supplierBusinessName").value,
+    businessType: document.getElementById("supplierBusinessType").value,
+    materialCategory: document.getElementById("supplierMaterialCategory").value,
+    experience: document.getElementById("supplierExperience").value,
+    pickupSlot: document.getElementById("supplierPickupSlot").value,
+    address: {
+      street: document.getElementById("supplierStreet").value,
+      village: document.getElementById("supplierVillage").value,
+      district: document.getElementById("supplierDistrict").value,
+      state: document.getElementById("supplierState").value,
+      pincode: document.getElementById("supplierPincode").value,
+    },
+  };
+
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/supplier/${supplierId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedData),
+    });
+
+    if (!res.ok) throw new Error("Failed to update profile");
+
+    alert("✅ Profile updated successfully!");
+    await loadSupplierProfile();
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    alert("Failed to update profile.");
+  }
+});
+// ---------- Profile Edit/Save Toggle ----------
+function setFormReadOnly(readOnly) {
+  document.querySelectorAll("#supplierProfileForm input").forEach(el => {
+    el.disabled = readOnly;
+  });
+}
+
+// When page loads -> editable by default
+document.addEventListener("DOMContentLoaded", () => {
+  setFormReadOnly(false); // Start editable
+
+  const editBtn = document.getElementById("editBtn");
+  const saveBtn = document.getElementById("saveBtn");
+
+  // Hide edit button, show save button by default
+  editBtn.classList.add("hidden");
+  saveBtn.classList.remove("hidden");
+
+  editBtn.addEventListener("click", () => {
+    setFormReadOnly(false); // enable editing
+    editBtn.classList.add("hidden");
+    saveBtn.classList.remove("hidden");
+  });
+
+  document.getElementById("supplierProfileForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await saveSupplierProfile(); // call save
+    setFormReadOnly(false);       // keep editable
+    saveBtn.classList.remove("hidden");
+    editBtn.classList.add("hidden");
+  });
+});
+
+// Refactor save logic into function so we can call it above
+async function saveSupplierProfile() {
+  const supplierId = localStorage.getItem("supplierId");
+  if (!supplierId) return;
+
+  const updatedData = {
+    name: document.getElementById("supplierName").value,
+    phone: document.getElementById("supplierPhone").value,
+    role: document.getElementById("supplierRole").value,
+    businessName: document.getElementById("supplierBusinessName").value,
+    businessType: document.getElementById("supplierBusinessType").value,
+    materialCategory: document.getElementById("supplierMaterialCategory").value,
+    experience: document.getElementById("supplierExperience").value,
+    pickupSlot: document.getElementById("supplierPickupSlot").value,
+    address: {
+      street: document.getElementById("supplierStreet").value,
+      village: document.getElementById("supplierVillage").value,
+      district: document.getElementById("supplierDistrict").value,
+      state: document.getElementById("supplierState").value,
+      pincode: document.getElementById("supplierPincode").value,
+    },
+  };
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/supplier/${supplierId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedData),
+    });
+
+    if (!res.ok) throw new Error("Failed to update profile");
+
+    alert("✅ Profile updated successfully!");
+    await loadSupplierProfile();
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    alert("Failed to update profile.");
+  }
+}
+
+// Initially load dashboard summary
+    loadSupplierDashboard();
+
+  </script>
+</body>
+</html>

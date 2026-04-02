@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Marketplace - RuchiBazaar</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap');
+
+    body {
+      background: linear-gradient(to bottom right, #f0f4ff, #e8f0fe);
+    }
+
+    .highlight-title {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .glass-box {
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 1rem;
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+    }
+
+    .ruchi-logo span {
+      background: linear-gradient(to right, #f97316, #1e40af);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="flex h-screen">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white bg-opacity-80 backdrop-blur-lg shadow-md p-6 flex flex-col space-y-6">
+    <div class="text-2xl ruchi-logo">🛒 <span>RuchiBazaar</span></div>
+    <nav class="space-y-3 mt-4">
+      <a href="vendor-dashboard.html" class="block px-4 py-2 rounded hover:bg-indigo-100 text-gray-800 font-medium">🏠 Dashboard</a>
+      <a href="vendor-profile.html" class="block px-4 py-2 rounded hover:bg-indigo-100 text-gray-800 font-medium">👤 My Profile</a>
+      <a href="vendor-orders.html" class="block px-4 py-2 rounded hover:bg-indigo-100 text-gray-800 font-medium">📦 My Orders</a>
+      <a href="marketplace.html" class="block px-4 py-2 rounded bg-indigo-100 text-gray-800 font-medium">🛍️ Marketplace</a>
+      <a href="#" class="block px-4 py-2 rounded hover:bg-indigo-100 text-gray-800 font-medium">⚙️ Settings</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl highlight-title text-gray-800">🛍️ Product Marketplace</h1>
+      <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+        Logout
+      </button>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="glass-box mb-6">
+      <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Category</label>
+      <select id="categoryFilter" class="px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-indigo-400">
+        <option value="">All Categories</option>
+        <option value="Vegetables">Vegetables</option>
+        <option value="Fruits">Fruits</option>
+        <option value="Grains">Grains</option>
+        <option value="Spices">Spices</option>
+        <option value="Dairy">Dairy</option>
+        <option value="Beverages">Beverages</option>
+      </select>
+    </div>
+
+    <!-- Products Grid -->
+    <div id="productsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Products will be dynamically loaded here -->
+    </div>
+  </main>
+
+  <!-- Order Modal -->
+  <div id="orderModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 w-full max-w-md">
+      <h2 class="text-2xl font-bold mb-4">Place Order</h2>
+      
+      <!-- Product Info -->
+      <div id="modalProductInfo" class="mb-4 p-4 bg-gray-50 rounded-lg"></div>
+      
+      <!-- Supplier Info -->
+      <div id="modalSupplierInfo" class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <h3 class="font-semibold text-blue-800 mb-2">📞 Supplier Details</h3>
+        <div id="supplierDetails" class="text-sm text-gray-700"></div>
+      </div>
+      
+      <form id="orderForm">
+        <input type="hidden" id="modalProductId" />
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+          <input type="number" id="orderQuantity" min="1" required class="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+        </div>
+        <div class="mb-4">
+          <p class="text-lg font-semibold">Total: ₹<span id="orderTotal">0</span></p>
+        </div>
+        <div class="flex gap-4">
+          <button type="submit" class="flex-1 bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition">
+            Confirm Order
+          </button>
+          <button type="button" onclick="closeModal()" class="flex-1 bg-gray-400 text-white py-2 rounded hover:bg-gray-500 transition">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Chatbot -->
+  <script src="chatbot.js"></script>
+
+  <script>
+    let allProducts = [];
+    let currentProduct = null;
+
+    function logout() {
+      localStorage.removeItem("supplierId");
+      localStorage.removeItem("vendorId");
+      window.location.href = "index.html";
+    }
+
+    async function loadProducts() {
+      try {
+        const res = await fetch("http://localhost:5000/api/products");
+        if (!res.ok) throw new Error("Failed to fetch products");
+        
+        allProducts = await res.json();
+        displayProducts(allProducts);
+      } catch (error) {
+        console.error("Error loading products:", error);
+        alert("Failed to load products");
+      }
+    }
+
+    function displayProducts(products) {
+      const container = document.getElementById("productsContainer");
+      container.innerHTML = "";
+
+      if (products.length === 0) {
+        container.innerHTML = `<p class="text-gray-600 col-span-3">No products available.</p>`;
+        return;
+      }
+
+      products.forEach(product => {
+        const productCard = document.createElement("div");
+        productCard.className = "glass-box shadow hover:shadow-xl transition cursor-pointer";
+
+        const supplierName = product.supplierId?.businessName || product.supplierId?.name || "Unknown Supplier";
+
+        productCard.innerHTML = `
+          <img src="http://localhost:5000${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover rounded mb-3" />
+          <h3 class="text-xl font-semibold text-indigo-700">${product.name}</h3>
+          <p class="text-gray-600 text-sm">Category: ${product.category}</p>
+          <p class="text-gray-600 text-sm">Supplier: ${supplierName}</p>
+          <p class="text-gray-800 font-semibold mt-2">₹${product.price} per ${product.quantityType}</p>
+          <p class="text-gray-600 text-sm">Available: ${product.quantity} ${product.quantityType}</p>
+          <p class="text-gray-600 mt-2 text-sm">${product.description || ''}</p>
+          <button onclick="openOrderModal('${product._id}')" class="mt-4 w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition">
+            Buy Now
+          </button>
+        `;
+
+        container.appendChild(productCard);
+      });
+    }
+
+    function openOrderModal(productId) {
+      currentProduct = allProducts.find(p => p._id === productId);
+      if (!currentProduct) return;
+
+      const supplier = currentProduct.supplierId;
+      const supplierName = supplier?.businessName || supplier?.name || "Unknown";
+      const supplierPhone = supplier?.phone || "N/A";
+
+      document.getElementById("modalProductId").value = productId;
+      document.getElementById("modalProductInfo").innerHTML = `
+        <p class="font-semibold text-lg">${currentProduct.name}</p>
+        <p class="text-gray-600">Price: ₹${currentProduct.price} per ${currentProduct.quantityType}</p>
+        <p class="text-gray-600 text-sm">Available: ${currentProduct.quantity} ${currentProduct.quantityType}</p>
+      `;
+      
+      document.getElementById("supplierDetails").innerHTML = `
+        <p class="mb-1"><span class="font-semibold">Name:</span> ${supplierName}</p>
+        <p class="mb-1"><span class="font-semibold">Phone:</span> ${supplierPhone}</p>
+        <p class="text-xs text-gray-500 mt-2">Contact supplier for pickup details</p>
+      `;
+      
+      document.getElementById("orderQuantity").value = 1;
+      updateTotal();
+      document.getElementById("orderModal").classList.remove("hidden");
+    }
+
+    function closeModal() {
+      document.getElementById("orderModal").classList.add("hidden");
+      currentProduct = null;
+    }
+
+    document.getElementById("orderQuantity").addEventListener("input", updateTotal);
+
+    function updateTotal() {
+      if (!currentProduct) return;
+      const quantity = document.getElementById("orderQuantity").value || 0;
+      const total = currentProduct.price * quantity;
+      document.getElementById("orderTotal").textContent = total;
+    }
+
+    document.getElementById("orderForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const vendorId = localStorage.getItem("supplierId");
+      if (!vendorId) {
+        alert("Please log in as a vendor");
+        window.location.href = "login.html";
+        return;
+      }
+
+      const productId = document.getElementById("modalProductId").value;
+      const quantity = document.getElementById("orderQuantity").value;
+
+      try {
+        const res = await fetch("http://localhost:5000/api/orders/place", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vendorId, productId, quantity })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          alert("✅ Order placed successfully!");
+          closeModal();
+        } else {
+          alert(data.message || "Failed to place order");
+        }
+      } catch (error) {
+        console.error("Error placing order:", error);
+        alert("Failed to place order");
+      }
+    });
+
+    document.getElementById("categoryFilter").addEventListener("change", (e) => {
+      const category = e.target.value;
+      if (category === "") {
+        displayProducts(allProducts);
+      } else {
+        const filtered = allProducts.filter(p => p.category === category);
+        displayProducts(filtered);
+      }
+    });
+
+    loadProducts();
+  </script>
+</body>
+</html>

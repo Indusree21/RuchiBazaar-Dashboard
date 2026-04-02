@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vendor Dashboard - RuchiBazaar</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap');
+
+    body {
+      background: linear-gradient(to bottom right, #f0f4ff, #e8f0fe);
+    }
+
+    .highlight-title {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .glass-box {
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 1rem;
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+    }
+
+    .ruchi-logo span {
+      background: linear-gradient(to right, #f97316, #1e40af);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="flex h-screen">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white bg-opacity-80 backdrop-blur-lg shadow-md p-6 flex flex-col space-y-6">
+    <div class="text-2xl ruchi-logo">🛒 <span>RuchiBazaar</span></div>
+    <nav class="space-y-3 mt-4">
+      <a href="vendor-dashboard.html" class="block px-4 py-2 rounded bg-indigo-100 text-gray-800 font-medium">🏠 Dashboard</a>
+      <a href="vendor-profile.html" class="block px-4 py-2 rounded hover:bg-indigo-100 text-gray-800 font-medium">👤 My Profile</a>
+      <a href="vendor-orders.html" class="block px-4 py-2 rounded hover:bg-indigo-100 text-gray-800 font-medium">📦 My Orders</a>
+      <a href="marketplace.html" class="block px-4 py-2 rounded hover:bg-indigo-100 text-gray-800 font-medium">🛍️ Marketplace</a>
+      <a href="#" class="block px-4 py-2 rounded hover:bg-indigo-100 text-gray-800 font-medium">⚙️ Settings</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <!-- Logout Button -->
+    <div class="flex justify-end mb-4">
+      <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+        Logout
+      </button>
+    </div>
+
+    <!-- Welcome Header -->
+    <h1 class="text-3xl highlight-title text-gray-800 mb-8">Welcome, Vendor</h1>
+
+    <!-- Summary Section -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="glass-box text-center shadow hover:shadow-lg transition">
+        <h2 class="text-xl text-indigo-700">Total Orders</h2>
+        <p id="totalOrders" class="text-3xl text-gray-800 mt-2">0</p>
+      </div>
+      <div class="glass-box text-center shadow hover:shadow-lg transition">
+        <h2 class="text-xl text-indigo-700">Delivered Orders</h2>
+        <p id="deliveredOrders" class="text-3xl text-gray-800 mt-2">0</p>
+      </div>
+      <div class="glass-box text-center shadow hover:shadow-lg transition">
+        <h2 class="text-xl text-indigo-700">Pending Orders</h2>
+        <p id="pendingOrders" class="text-3xl text-gray-800 mt-2">0</p>
+      </div>
+      <div class="glass-box text-center shadow hover:shadow-lg transition">
+        <h2 class="text-xl text-indigo-700">Total Spent</h2>
+        <p id="totalSpent" class="text-2xl text-gray-800 mt-2">₹0</p>
+      </div>
+    </div>
+
+    <!-- Quick Actions Section -->
+    <h2 class="text-2xl highlight-title text-gray-800 mb-4">Quick Actions</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div onclick="window.location.href='marketplace.html'" class="glass-box shadow hover:shadow-xl transition cursor-pointer">
+        <h3 class="text-lg text-indigo-700">🛒 Browse Products</h3>
+        <p class="text-sm text-gray-700 mt-1">Browse and buy vegetables from suppliers in the marketplace.</p>
+      </div>
+      <div onclick="window.location.href='vendor-orders.html'" class="glass-box shadow hover:shadow-xl transition cursor-pointer">
+        <h3 class="text-lg text-indigo-700">📍 View Orders</h3>
+        <p class="text-sm text-gray-700 mt-1">Track your existing orders and view order history.</p>
+      </div>
+      <div onclick="window.location.href='vendor-profile.html'" class="glass-box shadow hover:shadow-xl transition cursor-pointer">
+        <h3 class="text-lg text-indigo-700">👤 Update Profile</h3>
+        <p class="text-sm text-gray-700 mt-1">Manage your vendor profile and business information.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Chatbot -->
+  <script src="chatbot.js"></script>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("supplierId");
+      window.location.href = "index.html";
+    }
+
+    async function loadDashboard() {
+      const vendorId = localStorage.getItem("supplierId"); // Using supplierId as it stores user ID
+      if (!vendorId) {
+        console.log("No vendor ID found");
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/orders/vendor/${vendorId}`);
+        if (!res.ok) throw new Error("Failed to fetch orders");
+        
+        const orders = await res.json();
+
+        const totalOrders = orders.length;
+        const deliveredOrders = orders.filter(order => order.status === "delivered").length;
+        const pendingOrders = orders.filter(order => order.status === "pending").length;
+        // Only count delivered orders for total spent
+        const totalSpent = orders
+          .filter(order => order.status === "delivered")
+          .reduce((acc, order) => acc + order.totalAmount, 0);
+
+        document.getElementById("totalOrders").textContent = totalOrders;
+        document.getElementById("deliveredOrders").textContent = deliveredOrders;
+        document.getElementById("pendingOrders").textContent = pendingOrders;
+        document.getElementById("totalSpent").textContent = `₹${totalSpent}`;
+      } catch (error) {
+        console.error("Error loading dashboard:", error);
+      }
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>

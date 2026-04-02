@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Profile - RuchiBazaar</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap');
+
+    body {
+      background: linear-gradient(to bottom right, #f0f4ff, #e8f0fe);
+    }
+
+    .highlight-title {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .glass-box {
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 1rem;
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+    }
+
+    .ruchi-logo span {
+      background: linear-gradient(to right, #f97316, #1e40af);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="flex h-screen">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white bg-opacity-80 backdrop-blur-lg shadow-md p-6 flex flex-col space-y-6">
+    <div class="text-2xl ruchi-logo">🛒 <span>RuchiBazaar</span></div>
+    <nav class="space-y-3 mt-4">
+      <a href="vendor-dashboard.html" class="block px-4 py-2 rounded hover:bg-indigo-100 text-gray-800 font-medium">🏠 Dashboard</a>
+      <a href="vendor-profile.html" class="block px-4 py-2 rounded bg-indigo-100 text-gray-800 font-medium">👤 My Profile</a>
+      <a href="vendor-orders.html" class="block px-4 py-2 rounded hover:bg-indigo-100 text-gray-800 font-medium">📦 My Orders</a>
+      <a href="marketplace.html" class="block px-4 py-2 rounded hover:bg-indigo-100 text-gray-800 font-medium">🛍️ Marketplace</a>
+      <a href="#" class="block px-4 py-2 rounded hover:bg-indigo-100 text-gray-800 font-medium">⚙️ Settings</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl highlight-title text-gray-800">👤 My Profile</h1>
+      <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+        Logout
+      </button>
+    </div>
+
+    <!-- Profile Form -->
+    <div class="glass-box max-w-3xl">
+      <form id="vendorProfileForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+          <input type="text" id="vendorName" class="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+          <input type="text" id="vendorPhone" class="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+          <input type="text" id="vendorRole" class="w-full px-4 py-2 rounded border bg-gray-100" disabled />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Vendor Type</label>
+          <input type="text" id="vendorType" placeholder="e.g., Street Food Cart" class="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Stall Name</label>
+          <input type="text" id="stallName" placeholder="Your business name" class="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+        </div>
+
+        <h3 class="text-lg font-semibold text-gray-800 mt-6">Address</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Street</label>
+            <input type="text" id="vendorStreet" class="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Village</label>
+            <input type="text" id="vendorVillage" class="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">District</label>
+            <input type="text" id="vendorDistrict" class="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
+            <input type="text" id="vendorState" class="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
+            <input type="text" id="vendorPincode" class="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+        </div>
+
+        <div class="flex space-x-4 mt-6">
+          <button type="button" id="editBtn" class="bg-yellow-500 text-white px-6 py-2 rounded hover:bg-yellow-600 transition">
+            Edit
+          </button>
+          <button type="submit" id="saveBtn" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition hidden">
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- Chatbot -->
+  <script src="chatbot.js"></script>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("supplierId");
+      window.location.href = "index.html";
+    }
+
+    function setFormReadOnly(readOnly) {
+      document.querySelectorAll("#vendorProfileForm input:not([disabled])").forEach(el => {
+        el.disabled = readOnly;
+      });
+    }
+
+    async function loadVendorProfile() {
+      const vendorId = localStorage.getItem("supplierId");
+      if (!vendorId) {
+        alert("Please log in");
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/vendor/profile/${vendorId}`);
+        if (!res.ok) throw new Error("Failed to fetch profile");
+
+        const vendor = await res.json();
+
+        document.getElementById("vendorName").value = vendor.name || "";
+        document.getElementById("vendorPhone").value = vendor.phone || "";
+        document.getElementById("vendorRole").value = vendor.role || "vendor";
+        document.getElementById("vendorType").value = vendor.vendorType || "";
+        document.getElementById("stallName").value = vendor.stallName || "";
+
+        document.getElementById("vendorStreet").value = vendor.address?.street || "";
+        document.getElementById("vendorVillage").value = vendor.address?.village || "";
+        document.getElementById("vendorDistrict").value = vendor.address?.district || "";
+        document.getElementById("vendorState").value = vendor.address?.state || "";
+        document.getElementById("vendorPincode").value = vendor.address?.pincode || "";
+
+      } catch (err) {
+        console.error("Error loading profile:", err);
+        alert("Could not load profile.");
+      }
+    }
+
+    async function saveVendorProfile() {
+      const vendorId = localStorage.getItem("supplierId");
+      if (!vendorId) return;
+
+      const updatedData = {
+        name: document.getElementById("vendorName").value,
+        phone: document.getElementById("vendorPhone").value,
+        vendorType: document.getElementById("vendorType").value,
+        stallName: document.getElementById("stallName").value,
+        address: {
+          street: document.getElementById("vendorStreet").value,
+          village: document.getElementById("vendorVillage").value,
+          district: document.getElementById("vendorDistrict").value,
+          state: document.getElementById("vendorState").value,
+          pincode: document.getElementById("vendorPincode").value,
+        },
+      };
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/vendor/profile/${vendorId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedData),
+        });
+
+        if (!res.ok) throw new Error("Failed to update profile");
+
+        alert("✅ Profile updated successfully!");
+        await loadVendorProfile();
+      } catch (err) {
+        console.error("Error updating profile:", err);
+        alert("Failed to update profile.");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Start with form editable (not read-only)
+      setFormReadOnly(false);
+      loadVendorProfile();
+
+      const editBtn = document.getElementById("editBtn");
+      const saveBtn = document.getElementById("saveBtn");
+
+      // Hide edit button, show save button by default
+      editBtn.classList.add("hidden");
+      saveBtn.classList.remove("hidden");
+
+      editBtn.addEventListener("click", () => {
+        setFormReadOnly(false);
+        editBtn.classList.add("hidden");
+        saveBtn.classList.remove("hidden");
+      });
+
+      document.getElementById("vendorProfileForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        await saveVendorProfile();
+        // Keep form editable after save
+        setFormReadOnly(false);
+        saveBtn.classList.remove("hidden");
+        editBtn.classList.add("hidden");
+      });
+    });
+  </script>
+</body>
+</html>

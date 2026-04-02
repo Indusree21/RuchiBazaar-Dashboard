@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RuchiBazaar Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap');
+
+    body {
+      background: linear-gradient(to bottom right, #f0f4ff, #e8f0fe);
+    }
+
+    .highlight-title {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .glass-box {
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 1rem;
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+    }
+
+    .ruchi-logo span {
+      background: linear-gradient(to right, #f97316, #1e40af);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-white shadow-md py-4 px-6 flex justify-between items-center">
+    <span class="text-2xl ruchi-logo">🛒 <span>RuchiBazaar</span></span>
+    <div class="space-x-4">
+  <a href="login.html" class="text-indigo-600 hover:underline font-medium">Login</a>
+  <a href="signup.html" class="text-pink-600 hover:underline font-medium">Signup</a>
+</div>
+
+  </header>
+
+  <!-- Main Section -->
+  <main class="flex-grow flex flex-col items-center justify-center px-4 py-10 text-center">
+    <h1 class="text-4xl highlight-title font-bold mb-4 text-gray-800">
+      Digital <span class="text-indigo-600">Dukaan</span> for Every <span class="text-indigo-600">Thela</span>
+    </h1>
+
+    <p class="max-w-2xl text-gray-700 mb-10">
+      The ultimate platform connecting street food vendors with trusted suppliers. Compare prices, build your ingredient kit, and place pickup orders without delivery fees.
+    </p>
+
+    <!-- Features -->
+    <div class="flex flex-col md:flex-row justify-center gap-6 text-sm text-gray-700 mb-10">
+      <div class="glass-box flex flex-col items-center max-w-xs">
+        <div class="text-indigo-600 text-2xl mb-2">👨‍🍳</div>
+        <h3 class="font-bold text-lg">For Vendors</h3>
+        <p class="mt-1">Compare ingredient prices across trusted suppliers, build your personalized kit and get alerts when prices drop.</p>
+      </div>
+      <div class="glass-box flex flex-col items-center max-w-xs">
+        <div class="text-green-600 text-2xl mb-2">📦</div>
+        <h3 class="font-bold text-lg">For Suppliers</h3>
+        <p class="mt-1">List your products, manage orders, and grow your business with our comprehensive supplier dashboard.</p>
+      </div>
+      <div class="glass-box flex flex-col items-center max-w-xs">
+        <div class="text-purple-600 text-2xl mb-2">🚚</div>
+        <h3 class="font-bold text-lg">NoHustle Pickup</h3>
+        <p class="mt-1">No delivery fees! Choose your pickup slot and collect orders at your convenience.</p>
+      </div>
+    </div>
+
+    <!-- Choose Role -->
+    <h2 class="text-xl font-semibold mb-6">Choose Your Role</h2>
+    <div class="flex flex-col md:flex-row gap-6 justify-center items-stretch w-full max-w-4xl">
+
+      <!-- Vendor Card -->
+      
+<div class="bg-white bg-opacity-90 rounded-xl shadow-lg p-6 w-full md:w-1/2 transform hover:scale-105 transition duration-300 ease-in-out">
+
+        <h3 class="text-lg font-bold text-indigo-700 mb-2">I'm a Vendor</h3>
+        <p class="text-sm text-gray-600 mb-4">Street food vendors, restaurants, and food businesses. Compare prices, build your ingredient kit, and place orders.</p>
+        <ul class="text-left text-sm text-gray-700 list-disc list-inside mb-4">
+          <li>Compare ingredient prices</li>
+          <li>Build personalized ingredient kit</li>
+          <li>Place pickup orders</li>
+          <li>Get price drop alerts</li>
+        </ul>
+        <a href="signup.html?role=vendor" class="inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+          Join as Vendor
+        </a>
+      </div>
+
+      <!-- Supplier Card -->
+      
+<div class="bg-white bg-opacity-90 rounded-xl shadow-lg p-6 w-full md:w-1/2 transform hover:scale-105 transition duration-300 ease-in-out">
+
+        <h3 class="text-lg font-bold text-green-700 mb-2">I'm a Supplier</h3>
+        <p class="text-sm text-gray-600 mb-4">Wholesalers, distributors, and ingredient suppliers. List your products, manage orders, and grow your business.</p>
+        <ul class="text-left text-sm text-gray-700 list-disc list-inside mb-4">
+          <li>List your products</li>
+          <li>Manage orders efficiently</li>
+          <li>Set pickup slots</li>
+          <li>Track analytics</li>
+        </ul>
+          <a href="signup.html?role=supplier" class="inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+          Join as Supplier
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white text-center py-4 text-sm text-gray-500">
+    © 2025 <strong class="ruchi-logo"><span>RuchiBazaar</span></strong>. All rights reserved.
+  </footer>
+
+  <!-- Chatbot -->
+  <script src="chatbot.js"></script>
+</body>
+</html>

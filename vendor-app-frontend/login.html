@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - RuchiBazaar</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap');
+
+    body {
+      background: linear-gradient(to bottom right, #f0f4ff, #e8f0fe);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .highlight-title {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .glass-box {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(10px);
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .ruchi-logo span {
+      background: linear-gradient(to right, #f97316, #1e40af);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen px-4">
+
+  <div class="max-w-md w-full glass-box text-center">
+    <h2 class="text-3xl highlight-title text-gray-800 mb-6">Welcome Back 👋</h2>
+
+    <form id="loginForm" class="space-y-4">
+      <input type="text" placeholder="Phone Number" id="phone" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
+      
+      <input type="password" placeholder="Password" id="password" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
+      
+      <div class="text-right text-sm">
+        <a href="forgot-password.html" class="text-indigo-600 hover:underline">Forgot Password?</a>
+      </div>
+
+      <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition">
+        Login
+      </button>
+    </form>
+
+    <p class="text-sm text-gray-600 mt-4">
+      Don't have an account? 
+      <a href="signup.html" class="text-pink-600 font-medium hover:underline">Sign up here</a>
+    </p>
+  </div>
+
+  <script>
+document.getElementById("loginForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const phone = document.getElementById("phone").value;
+    const password = document.getElementById("password").value;
+
+    try {
+        const res = await fetch("http://localhost:5000/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone, password })
+});
+
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert(data.message || "Login failed");
+            return;
+        }
+
+        // ✅ Store supplierId for product adding later
+        localStorage.setItem("supplierId", data._id);
+        localStorage.setItem("userRole", data.role);
+
+        if (data.role === "supplier") {
+            window.location.href = "supplier-dashboard.html";
+        } else if (data.role === "vendor") {
+            window.location.href = "vendor-dashboard.html";
+        } else {
+            alert("Unknown role");
+        }
+    } catch (error) {
+        console.error("Login Error:", error);
+        alert("Server error. Please try again.");
+    }
+});
+</script>
+
+
+
+</body>
+</html>

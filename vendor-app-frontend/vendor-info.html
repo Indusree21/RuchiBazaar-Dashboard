@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Onboarding - RuchiBazaar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-100 to-blue-200 min-h-screen flex justify-center items-center">
+  <div class="bg-white shadow-lg rounded-xl p-8 w-full max-w-2xl">
+    <h1 class="text-3xl font-bold text-center mb-6 text-blue-700">Complete Your Vendor Profile</h1>
+    
+    <form id="vendorInfoForm" class="space-y-4">
+      
+      <!-- Name -->
+      <div>
+        <label class="block font-medium mb-1">Full Name</label>
+        <input type="text" id="fullName" placeholder="Enter your name" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400" required>
+      </div>
+
+      <!-- Business Type (Dropdown) -->
+      <div>
+        <label class="block font-medium mb-1">Business Type</label>
+        <select id="businessType" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400" required>
+          <option value="">-- Select Business Type --</option>
+          <option value="Street Food Cart">Street Food Cart</option>
+          <option value="Small Restaurant">Small Restaurant</option>
+          <option value="Cafe / Tea Stall">Cafe / Tea Stall</option>
+          <option value="Juice / Shake Shop">Juice / Shake Shop</option>
+          <option value="Bakery">Bakery</option>
+          <option value="Snacks & Chaat Stall">Snacks & Chaat Stall</option>
+          <option value="Tiffin / Meals Provider">Tiffin / Meals Provider</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <!-- Address Fields -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-medium mb-1">Street</label>
+          <input type="text" id="street" placeholder="Street Name" class="w-full border rounded-lg px-4 py-2" required>
+        </div>
+        <div>
+          <label class="block font-medium mb-1">Village</label>
+          <input type="text" id="village" placeholder="Village" class="w-full border rounded-lg px-4 py-2" required>
+        </div>
+        <div>
+          <label class="block font-medium mb-1">District</label>
+          <input type="text" id="district" placeholder="District" class="w-full border rounded-lg px-4 py-2" required>
+        </div>
+        <div>
+          <label class="block font-medium mb-1">State</label>
+          <input type="text" id="state" placeholder="State" class="w-full border rounded-lg px-4 py-2" required>
+        </div>
+        <div>
+          <label class="block font-medium mb-1">Pincode</label>
+          <input type="text" id="pincode" placeholder="Pincode" pattern="[0-9]{6}" class="w-full border rounded-lg px-4 py-2" required>
+        </div>
+      </div>
+
+      <!-- Operating Hours -->
+      <div>
+        <label class="block font-medium mb-1">Operating Hours</label>
+        <select id="operatingHours" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400" required>
+          <option value="">-- Select Hours --</option>
+          <option value="Morning (6 AM – 12 PM)">Morning (6 AM – 12 PM)</option>
+          <option value="Afternoon (12 PM – 5 PM)">Afternoon (12 PM – 5 PM)</option>
+          <option value="Evening (5 PM – 10 PM)">Evening (5 PM – 10 PM)</option>
+          <option value="Full Day (6 AM – 10 PM)">Full Day (6 AM – 10 PM)</option>
+          <option value="Custom Timing">Custom Timing</option>
+        </select>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition">
+        Complete Onboarding
+      </button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("vendorInfoForm").addEventListener("submit", async function(e){
+      e.preventDefault();
+
+      const userStr = localStorage.getItem("user");
+      console.log("User from localStorage:", userStr);
+
+      if (!userStr) {
+        alert("User not found in localStorage. Please sign up again.");
+        window.location.href = "signup.html?role=vendor";
+        return;
+      }
+
+      const user = JSON.parse(userStr);
+      console.log("Parsed user:", user);
+
+      if (!user._id) {
+        alert("User ID missing. Please sign up again.");
+        localStorage.removeItem("user");
+        window.location.href = "signup.html?role=vendor";
+        return;
+      }
+
+      const updatedData = {
+        name: document.getElementById("fullName").value,
+        vendorType: document.getElementById("businessType").value,
+        stallName: document.getElementById("businessType").value, // Using business type as stall name
+        address: {
+          street: document.getElementById("street").value,
+          village: document.getElementById("village").value,
+          district: document.getElementById("district").value,
+          state: document.getElementById("state").value,
+          pincode: document.getElementById("pincode").value,
+        },
+        onboardingCompleted: true
+      };
+
+      try {
+        console.log("Updating vendor profile for ID:", user._id);
+        const res = await fetch(`http://localhost:5000/api/vendor/profile/${user._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedData),
+        });
+
+        const data = await res.json();
+        console.log("Update response:", data);
+
+        if (res.ok) {
+          localStorage.setItem("user", JSON.stringify(data));
+          alert("Onboarding completed successfully!");
+          window.location.href = "login.html";
+        } else {
+          alert(data.message || "Error updating profile");
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        alert("Server error while saving onboarding details");
+      }
+    });
+  </script>
+</body>
+</html>
